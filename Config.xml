@@ -1,0 +1,855 @@
+<Sysmon schemaversion="4.70">
+	<!--SYSMON META CONFIG-->
+	<HashAlgorithms>md5,sha256</HashAlgorithms> 
+	<CheckRevocation/> 
+	<DnsLookup>False</DnsLookup>
+	<ArchiveDirectory>Sysmon</ArchiveDirectory>
+	<EventFiltering>
+	<!-- Event ID 1 == Process Creation. -->
+	<!-- <RuleGroup name="Info=ProcessCreate exclude Group" groupRelation="or">
+		<ProcessCreate onmatch="exclude">
+		</ProcessCreate>
+	</RuleGroup> -->
+	<RuleGroup name="Info=ProcessCreate exclude Group" groupRelation="or">
+		<ProcessCreate onmatch="include">
+			<ParentImage name="technique_id=T1088,technique_name=Bypass UAC via Fodhelper.exe" condition="image">fodhelper.exe</ParentImage>
+
+			<Rule name="technique_id=T1088,technique_name=Bypass UAC via WSReset.exe" groupRelation="and">
+				<ParentImage condition="image">wsreset.exe</ParentImage>
+				<Image condition="excludes">conhost.exe</Image>
+			</Rule>
+
+			<Rule name="technique_id=T1070.001,technique_name=Clearing Windows Event Logs with wevtutil" groupRelation="and">
+				<Image condition="image">wevtutil.exe</Image>
+				<CommandLine condition="contains any"> cl ; clear-log </CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1070.001,technique_name=Clearing Windows Event Logs" groupRelation="and">
+				<Image condition="contains any">powershell.exe;pwsh.exe</Image>
+				<CommandLine condition="contains">Clear-EventLog</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1070.001,technique_name=Clearing Windows Event Logs" groupRelation="and">
+				<Image condition="image">WMIC.exe</Image>
+				<CommandLine condition="contains all">nteventlog;ClearEventLog</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1070.001,technique_name=Clearing Windows Event Logs" groupRelation="and">
+				<Image condition="image">wevtutil.exe</Image>
+				<CommandLine condition="contains any"> sl ; set-log </CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1070.001,technique_name=Clearing Windows Event Logs" groupRelation="and">
+				<Image condition="contains any">powershell.exe;pwsh.exe</Image>
+				<CommandLine condition="contains any">Set-ItemProperty; sp </CommandLine>
+				<CommandLine condition="contains">\Services\EventLog\</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1070.001,technique_name=Clearing Windows Event Logs" groupRelation="and">
+				<Image condition="contains any">powershell.exe;pwsh.exe</Image>
+				<CommandLine condition="contains">Remove-EventLog</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1070.001,technique_name=Clearing Windows Event Logs" groupRelation="and">
+				<Image condition="image">cmd.exe</Image>
+				<CommandLine condition="contains">\Windows\System32\winevt\logs\</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1070.001,technique_name=Clearing Windows Event Logs" groupRelation="and">
+				<Image condition="image">WMIC.exe</Image>
+				<CommandLine condition="contains all">Windows\System32\winevt\logs;delete</CommandLine>
+			</Rule>
+			
+			<Rule name="technique_id=T1560.001,technique_name=Command-Line Creation of a RAR file" groupRelation="and">
+				<Image condition="image">rar.exe</Image>
+				<CommandLine condition="contains">a</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1560.001,technique_name=Compress Data and lock with password for Exfiltration with winzip" groupRelation="and">
+				<Image condition="image">winzip64.exe</Image>
+				<CommandLine condition="contains">-a</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1560.001,technique_name=Compress Data and lock with password for Exfiltration with 7zip" groupRelation="and">
+				<Image condition="image">7z.exe</Image>
+				<CommandLine condition="contains">u</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1196,technique_name=Control Panel Items" groupRelation="and">
+				<Image condition="image">control.exe</Image>
+				<CommandLine condition="contains">.cpl</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1196,technique_name=Control Panel Items" groupRelation="and">
+				<Image condition="image">rundll32.exe</Image>
+				<CommandLine condition="contains">.cpl</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1053,technique_name=Creation of Scheduled Task with schtasks.exe" groupRelation="and">
+				<Image condition="image">schtasks.exe</Image>
+				<CommandLine condition="contains">create</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1003,technique_name=Credential Enumeration via Credential Vault CLI" groupRelation="and">
+				<Image condition="image">vaultcmd.exe</Image>
+				<CommandLine condition="contains">/list</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1070,technique_name=Delete Volume USN Journal with fsutil" groupRelation="and">
+				<Image condition="image">fsutil.exe</Image>
+				<CommandLine condition="contains all">usn;deletejournal</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1070.005,technique_name=Disconnecting from Network Shares with net.exe" groupRelation="and">
+				<Image condition="image">net.exe</Image>
+				<CommandLine condition="contains">/d</CommandLine>
+			</Rule>
+			
+			<Rule name="technique_id=T1124,technique_name=Discovery of a Remote System’s Time" groupRelation="and">
+				<Image condition="image">net.exe</Image>
+				<CommandLine condition="contains all">time;\\</CommandLine>
+			</Rule>
+		
+			<Rule name="technique_id=T1069,technique_name=Discovery of Domain Groups" groupRelation="and">
+				<Image condition="image">net.exe</Image>
+				<CommandLine condition="contains">localgroup</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1016,technique_name=Discovery of Network Environment via Built-in Tools" groupRelation="and">
+				<Image condition="contains any">ipconfig.exe;route.exe;nbtstat.exe;arp.exe</Image>
+				<CommandLine condition="contains">localgroup</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1482,technique_name=Domain Trust Discovery" groupRelation="and">
+				<Image condition="image">dsquery.exe</Image>
+				<CommandLine condition="contains">(objectClass=trustedDomain)</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1482,technique_name=Domain Trust Discovery" groupRelation="and">
+				<Image condition="image">nltest.exe</Image>
+				<CommandLine condition="contains">domain_trusts</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1140,technique_name=Encoding or Decoding Files via CertUtil" groupRelation="and">
+				<Image condition="image">certutil.exe</Image>
+				<CommandLine condition="contains any">encode;decode</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1135,technique_name=Enumeration of Local Shares" groupRelation="and">
+				<Image condition="image">net.exe</Image>
+				<CommandLine condition="contains">share</CommandLine>
+				<CommandLine condition="excludes">*</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1135,technique_name=Enumeration of Local Shares" groupRelation="and">
+				<Image condition="image">net1.exe</Image>
+				<ParentImage condition="excludes">net.exe</ParentImage>
+				<CommandLine condition="contains">share</CommandLine>
+				<CommandLine condition="excludes">*</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1135,technique_name=Enumeration of Remote Shares" groupRelation="and">
+				<Image condition="image">net.exe</Image>
+				<CommandLine condition="contains all">view;\\</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1135,technique_name=Enumeration of Remote Shares" groupRelation="and">
+				<Image condition="image">net1.exe</Image>
+				<ParentImage condition="excludes">net.exe</ParentImage>
+				<CommandLine condition="contains all">view;\\</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1082,technique_name=Enumeration of System Information" groupRelation="and">
+				<Image condition="contains any">systeminfo.exe;hostname.exe</Image>
+			</Rule>
+
+			<Rule name="technique_id=T1135,technique_name=Enumeration of Remote Shares" groupRelation="and">
+				<Image condition="image">cmd.exe</Image>
+				<CommandLine condition="contains any">ver;%COMPUTERNAME%;%PROCESSOR_</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1569.002,technique_name=Execution of Existing Service via Command" groupRelation="and">
+				<Image condition="image">sc.exe</Image>
+				<CommandLine condition="contains">start</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1569.002,technique_name=Execution of Existing Service via Command" groupRelation="and">
+				<Image condition="image">net.exe</Image>
+				<CommandLine condition="contains all">?".;? start;[\s].</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1569.002,technique_name=Execution of Existing Service via Command" groupRelation="and">
+				<Image condition="image">powershell.exe</Image>
+				<CommandLine condition="contains">Start-Service</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1569.002,technique_name=Execution of Existing Service via Command" groupRelation="and">
+				<Image condition="image">wmic.exe</Image>
+				<CommandLine condition="contains all">service;call;startservice</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1218.003,technique_name=Execution via cmstp.exe" groupRelation="and">
+				<Image condition="image">cmstp.exe</Image>
+				<CommandLine condition="contains"> /s </CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1070,technique_name=Host Artifact Deletion" groupRelation="and">
+				<Image condition="image">rundll32.exe</Image>
+				<CommandLine condition="contains">InetCpl.cpl,Clear</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1070,technique_name=Host Artifact Deletion" groupRelation="and">
+				<Image condition="image">reg.exe</Image>
+				<CommandLine condition="contains">delete </CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1070,technique_name=Host Artifact Deletion" groupRelation="and">
+				<Image condition="image">cmd.exe</Image>
+				<CommandLine condition="contains">rmdir </CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1021.006,technique_name=Incoming Remote PowerShell Sessions" groupRelation="and">
+				<Image condition="image">wsmprovhost.exe</Image>
+				<ParentImage condition="image">svchost.exe</ParentImage>
+			</Rule>
+
+			<ParentImage name="technique_id=T1202,technique_name=Indirect Command Execution" condition="contains any">pcalua.exe;forfiles.exe;conhost.exe</ParentImage>
+
+			<Rule name="technique_id=T1053,technique_name=Interactive AT Job" groupRelation="and">
+				<Image condition="image">at.exe</Image>
+				<CommandLine condition="contains">interactive</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1003,technique_name=LSASS Memory Dumping via ProcDump.exe" groupRelation="and">
+				<Image condition="contains all">procdump;.exe</Image>
+				<CommandLine condition="contains">lsass</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1490,technique_name=Modification of Boot Configuration" groupRelation="and">
+				<Image condition="image">bcdedit.exe</Image>
+				<CommandLine condition="contains all">set;bootstatuspolicy;ignoreallfailures</CommandLine>
+			</Rule>
+			
+			<Rule name="technique_id=T1490,technique_name=Modification of Boot Configuration" groupRelation="and">
+				<Image condition="image">bcdedit.exe</Image>
+				<CommandLine condition="contains all">set;recoveryenabled;no</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1021.002,technique_name=Mounting Hidden Shares" groupRelation="and">
+				<Image condition="image">net.exe</Image>
+				<CommandLine condition="contains">uses</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1021.002,technique_name=Mounting Hidden Shares" groupRelation="and">
+				<Image condition="image">net1.exe</Image>
+				<ParentImage condition="excludes">C:\Windows\System32\net.exe</ParentImage>
+				<CommandLine condition="contains">uses</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1218.005,technique_name=Mshta Network Connections" groupRelation="and">
+				<Image condition="image">mshta.exe</Image>
+				<CommandLine condition="contains">javascript</CommandLine>
+			</Rule>
+
+			<!-- <Rule name="technique_id=T1201,technique_name=Password Policy Enumeration" groupRelation="and">
+				<Image condition="image">change.exe</Image>
+				<CommandLine condition="contains">-l</CommandLine>
+			</Rule> -->
+
+			<Rule name="technique_id=T1057,technique_name=Process Discovery via Windows Tools" groupRelation="and">
+				<Image condition="image">powershell.exe</Image>
+				<CommandLine condition="contains">Get-Process</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1057,technique_name=Process Discovery via Windows Tools" groupRelation="and">
+				<Image condition="image">quser.exe</Image>
+			</Rule>
+
+			<Rule name="technique_id=T1057,technique_name=Process Discovery via Windows Tools" groupRelation="and">
+				<Image condition="contains any">findstr.exe;find.exe;wmic.exe</Image>
+				<CommandLine condition="contains any">lsass;eventlog;termservice</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1057,technique_name=Process Discovery via Windows Tools" groupRelation="and">
+				<Image condition="image">powershell.exe</Image>
+				<CommandLine condition="contains any">win32_service;eventlog;termservice</CommandLine>
+			</Rule>
+
+
+			<!-- <Rule name="technique_id=T1057,technique_name=Process Discovery via Windows Tools" groupRelation="and">
+				<Image condition="image">tasklist.exe</Image>
+			</Rule> -->
+
+			<Rule name="technique_id=T1036,technique_name=Processes Running with Unusual Extensions" groupRelation="and">
+				<Image condition="contains any">.pif;.pdf;.docx;.doc;.xlsx;.xls;.pptx;.ppt;.txt;.rtf;.gif;.jpg;.png;.bmp;.vbs;.vbe;.bat;.js;.cmd;.wsh;.ps1</Image>
+			</Rule>
+
+			<Rule name="technique_id=T1216,technique_name=Proxied Execution via Signed Scripts" groupRelation="and">
+				<Image condition="contains any">cscript.exe;wscript.exe</Image>
+				<CommandLine condition="contains all">.vbs;script:http</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1218.010,technique_name=RegSvr32 Scriptlet Execution" groupRelation="and">
+				<Image condition="image">regsvr32.exe</Image>
+				<CommandLine condition="contains any">scrobj;/i:;-i:;.sct</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1021.001,technique_name=Remote Desktop Protocol Hijack" groupRelation="and">
+				<Image condition="image">tscon.exe</Image>
+				<CommandLine condition="contains"> </CommandLine>
+			</Rule>
+			
+			<Rule name="technique_id=T1047,technique_name=Remote Execution via WMIC" groupRelation="and">
+				<Image condition="image">wmic.exe</Image>
+				<CommandLine condition="contains all">/node:;process;call</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1047,technique_name=Remote Execution via WMIC" groupRelation="and">
+				<Image condition="image">wmic.exe</Image>
+				<CommandLine condition="contains all">-node:;process;call</CommandLine>
+			</Rule>
+			
+			<Rule name="technique_id=T1018,technique_name=Remote System Discovery Commands" groupRelation="and">
+				<Image condition="image">nbtstat.exe</Image>
+				<CommandLine condition="contains all">-n;-s</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1218.001,technique_name=HH.exe execution" groupRelation="and">
+				<!-- <TargetFilename condition="end with">.chm</TargetFilename> -->
+				<Image condition="image">hh.exe</Image>
+				<CommandLine condition="contains">.chm</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1552.001,technique_name=Searching for Passwords in Files" groupRelation="and">
+				<Image condition="image">findstr.exe</Image>
+				<CommandLine condition="contains">password</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1543.003,technique_name=Service Path Modification with sc.exe" groupRelation="and">
+				<Image condition="image">sc.exe</Image>
+				<CommandLine condition="contains all"> config ;binPath</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1489,technique_name=Service Stop or Disable with sc.exe" groupRelation="and">
+				<Image condition="image">sc.exe</Image>
+				<CommandLine condition="contains all">stop;config;disabled</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1547.001,technique_name=Startup Folder Execution via VBScript" groupRelation="and">
+				<Image condition="contains any">wscript.exe;cscript.exe;powershell.exe;cmd.exe;winword.exe;excel.exe;powerpnt.exe</Image>
+				<!-- <ParentImage condition="image">explorer.exe</ParentImage> -->
+				<CommandLine condition="contains">\Programs\Startup\</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1489,technique_name=Stopping Services with net.exe" groupRelation="and">
+				<Image condition="image">net.exe</Image>
+				<CommandLine condition="contains"> stop </CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1197,technique_name=Suspicious Bitsadmin Job via bitsadmin.exe" groupRelation="and">
+				<Image condition="image">bitsadmin.exe</Image>
+				<CommandLine condition="contains any">/download;transfer</CommandLine>
+				<CommandLine condition="excludes">upload</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1197,technique_name=Suspicious Bitsadmin Job via PowerShell" groupRelation="and">
+				<Image condition="image">powershell.exe</Image>
+				<CommandLine condition="contains any">Start-BitsTransfer;Resume-BitsTransfer</CommandLine>
+				<CommandLine condition="excludes">upload</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1197,technique_name=Suspicious Bitsadmin Job via bitsadmin.exe" groupRelation="and">
+				<Image condition="image">bitsadmin.exe</Image>
+				<CommandLine condition="contains any">/download;transfer</CommandLine>
+				<CommandLine condition="excludes">upload</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1082,technique_name=System Information Discovery" groupRelation="and">
+				<Image condition="image">systeminfo.exe</Image>
+			</Rule>
+
+			<Rule name="technique_id=T1082,technique_name=System Information Discovery" groupRelation="and">
+				<Image condition="image">systeminfo.exe</Image>
+			</Rule>
+
+			<Rule name="technique_id=T1049,technique_name=System Network Connections Discovery" groupRelation="and">
+				<Image condition="contains any">netstat.exe;lsof.exe;who.exe;w.exe</Image>
+			</Rule>
+
+			<Rule name="technique_id=T1033,technique_name=System Owner and User Discovery" groupRelation="and">
+				<Image condition="contains any">hostname.exe;whoami.exe;systeminfo.exe;quser.exe</Image>
+			</Rule>
+
+			<Rule name="technique_id=T1033,technique_name=System Owner and User Discovery" groupRelation="and">
+				<Image condition="image">cmd.exe</Image>
+				<CommandLine condition="contains all">echo;%USERNAME%;%USERDOMAIN%</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1562.001,technique_name=Unload Sysmon Filter Driver with fltmc.exe" groupRelation="and">
+				<Image condition="image">fltmc.exe</Image>
+				<CommandLine condition="contains all">unload ;sysmon</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1136,technique_name=User Account Creation" groupRelation="and">
+				<Image condition="image">net.exe</Image>
+				<CommandLine condition="contains all">user ;/ad</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1136,technique_name=User Account Creation" groupRelation="and">
+				<Image condition="image">net1.exe</Image>
+				<ParentImage condition="excludes">net.exe</ParentImage>
+				<CommandLine condition="contains all">user ;/ad</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1490,technique_name=Volume Shadow Copy Deletion via VssAdmin" groupRelation="and">
+				<CommandLine condition="contains all">delete;shadows</CommandLine>
+				<Image condition="image">vssadmin.exe</Image>
+			</Rule>
+
+			<Rule name="technique_id=T1490,technique_name=Volume Shadow Copy Deletion via WMIC" groupRelation="and">
+				<CommandLine condition="contains all">shadowcopy;delete</CommandLine>
+				<Image condition="image">wmic.exe</Image>
+			</Rule>
+
+			<Rule name="technique_id=T1222,technique_name=Windows File Permissions Modification" groupRelation="and">
+				<CommandLine condition="contains"> +h</CommandLine>
+				<Image condition="image">attrib.exe</Image>
+			</Rule>
+
+			<Rule name="technique_id=T1222,technique_name=Windows File Permissions Modification" groupRelation="and">
+				<Image condition="image">takeown.exe</Image>
+			</Rule>
+
+			<Rule name="technique_id=T1222,technique_name=Windows File Permissions Modification" groupRelation="and">
+				<Image condition="image">icacls.exe</Image>
+				<CommandLine condition="contains">grant</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1018,technique_name=Windows Network Enumeration" groupRelation="and">
+				<Image condition="image">net.exe</Image>
+				<CommandLine condition="contains"> view;</CommandLine>
+				<CommandLine condition="excludes">\\</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1018,technique_name=Windows Network Enumeration" groupRelation="and">
+				<Image condition="image">net.exe</Image>
+				<CommandLine condition="contains"> view;</CommandLine>
+				<CommandLine condition="excludes">\\</CommandLine>
+			</Rule>
+
+			<!-- https://github.com/vadim-hunter/Detection-Ideas-Rules/tree/main/TTPs/Command%20and%20Control/T1105%20-%20Ingress%20Tool%20Transfer -->
+			<Rule name="technique_id=T1105.001,technique_name=Ingress Tool Transfer" groupRelation="and">
+				<OriginalFileName condition="is">rundll32.exe</OriginalFileName>
+				<CommandLine condition="contains all">jwddl;ActionDownload</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1105.001,technique_name=Ingress Tool Transfer" groupRelation="and">
+				<CommandLine condition="contains all">rundll32 ;jwddl;ActionDownload</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1105.001,technique_name=Ingress Tool Transfer" groupRelation="and">
+				<Description condition="is">Windows host process (Rundll32)</Description>
+				<CommandLine condition="contains all">jwddl;ActionDownload</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1105.002,technique_name=Ingress Tool Transfer" groupRelation="and">
+				<Image condition="image">excelcnv.exe</Image>
+				<CommandLine condition="contains all">http; OR ;ftp</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1105.002,technique_name=Ingress Tool Transfer" groupRelation="and">
+				<CommandLine condition="contains all">excelcnv ;http; OR ;ftp</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1105.002,technique_name=Ingress Tool Transfer" groupRelation="and">
+				<OriginalFileName condition="is">Excel.exe</OriginalFileName>
+				<CommandLine condition="contains all">http; OR ;ftp</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1105.002,technique_name=Ingress Tool Transfer" groupRelation="and">
+				<OriginalFileName condition="is">Excel.exe</OriginalFileName>
+				<CommandLine condition="contains all">http; OR ;ftp</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1564.002,technique_name=Hide Artifacts" groupRelation="or">
+				<Image condition="contains">:$Recycle.Bin\</Image>
+				<CurrentDirectory condition="contains">:$Recycle.Bin\</CurrentDirectory>
+			</Rule>
+
+			<Rule name="technique_id=T1564.003,technique_name=Hide Artifacts" groupRelation="and">
+				<Image condition="contains">powershell.exe;pwsh.exe;wscript.exe;cscript.exe</Image>
+				<CommandLine condition="contains">:$Recycle.Bin\</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1564.004,technique_name=Hide Artifacts" groupRelation="and">
+				<Image condition="contains">rundll32.exe;regsvr32.exe;mshta.exe;msbuild.exe;msiexec.exe</Image>
+				<CommandLine condition="contains">:$Recycle.Bin\</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1218.010,technique_name=Signed Binary Proxy Execution - Regsvr32" groupRelation="and">
+				<Image condition="image">wmic.exe</Image>
+				<ParentImage condition="contains any">winword.exe;excel.exe;powerpnt.exe</ParentImage>
+			</Rule>
+
+			<Rule name="technique_id=T1218.010,technique_name=Signed Binary Proxy Execution - Regsvr32" groupRelation="and">
+				<Image condition="image">wmic.exe</Image>
+				<CommandLine condition="contains all">process;call;create</CommandLine>
+				<CommandLine condition="contains any">regsvr32;rundll32;msiexec;mshta;verclsid</CommandLine>
+				<ParentImage condition="contains any">winword.exe;excel.exe;powerpnt.exe</ParentImage>
+			</Rule>
+
+			<Rule name="technique_id=T1218.010,technique_name=Signed Binary Proxy Execution - Regsvr32" groupRelation="and">
+				<Image condition="contains any">regsvr32.exe;rundll32.exe;msiexec.exe;mshta.exe;verclsid.exe</Image>
+				<ParentImage condition="contains any">winword.exe;excel.exe;powerpnt.exe;WmiPrvSE.exe</ParentImage>
+			</Rule>
+
+			<Rule name="technique_id=T1218.011,technique_name=Signed Binary Proxy Execution - Rundll32" groupRelation="and">
+				<Image condition="contains any">regsvr32.exe;rundll32.exe;msiexec.exe;mshta.exe;verclsid.exe</Image>
+				<ParentImage condition="contains any">winword.exe;excel.exe;powerpnt.exe;WmiPrvSE.exe</ParentImage>
+			</Rule>
+
+			<Rule name="technique_id=T1053,technique_name=Scheduled Task/Job" groupRelation="and">
+				<Image condition="image">schtasks.exe</Image>
+				<CommandLine condition="contains any">/Create ;/Change </CommandLine>
+				<CommandLine condition="contains any">regsvr32;rundll32;msiexec;mshta;verclsid</CommandLine>
+			</Rule>
+
+			<Rule name="technique_id=T1053,technique_name=Scheduled Task/Job" groupRelation="and">
+				<Image condition="image">at.exe</Image>
+				<CommandLine condition="contains any">regsvr32;rundll32;msiexec;mshta;verclsid</CommandLine>
+			</Rule>
+		</ProcessCreate>
+	</RuleGroup>
+	
+	<!-- Event ID 2 == File Creation Time. -->
+	<RuleGroup name="Info=FileCreateTime exclude Group" groupRelation="or">
+		<FileCreateTime onmatch="include">
+			<Rule name="technique_id=T1547.001,technique_name=Startup Folder Execution via VBScript" groupRelation="and">
+				<TargetFilename condition="contains all">\Programs\Startup\;.vbs</TargetFilename>
+				<Image condition="contains any">wscript.exe;cscript.exe;powershell.exe;cmd.exe;winword.exe;excel.exe;powerpnt.exe</Image>
+			</Rule>
+
+		</FileCreateTime>
+	</RuleGroup>
+	
+	<!-- Event ID 3 == Network Connection. -->
+	<RuleGroup name="Info=NetworkConnect exclude Group" groupRelation="or">
+        <NetworkConnect onmatch="include">
+			<DestinationPort name="technique_id=T1021.006,technique_name=Incoming Remote PowerShell Sessions" condition="contains any">5985;5986</DestinationPort>
+
+			<Rule name="technique_id=T1218.005,technique_name=Mshta Network Connections" groupRelation="and">
+				<Image condition="image">mshta.exe</Image>
+			</Rule>
+
+			<Rule name="technique_id=T1071.001,technique_name=Web Protocols" groupRelation="and">
+				<Image condition="excludes any">\Dropbox\Client\Dropbox.exe;\Dropbox\Update\DropboxUpdate.exe;chrome.exe;firefox.exe;iexplore.exe;opera.exe;microsoftedgecp.exe;microsoftedge.exe;browser.exe</Image>
+				<DestinationIp condition="is">162.125.70.0/24</DestinationIp>
+			</Rule>
+			
+			<!-- https://github.com/vadim-hunter/Detection-Ideas-Rules/tree/main/TTPs/Credential%20Access/T1187%20-%20Forced%20Authentication -->
+			<Rule name="technique_id=T1187,technique_name=Forced Authentication" groupRelation="and">
+				<DestinationPort condition="is">445</DestinationPort>
+				<DestinationIp condition="is">Remote</DestinationIp>
+			</Rule>
+
+			<Rule name="technique_id=T1218.003,technique_name=Execution via cmstp.exe" groupRelation="and">
+				<Image condition="image">cmstp.exe</Image>
+				<DestinationIp  condition="is">Remote</DestinationIp >
+			</Rule>
+
+			<Rule name="technique_id=T1218.010,technique_name=Signed Binary Proxy Execution - Regsvr32" groupRelation="and">
+				<Image condition="image">regsvr32.exe</Image>
+				<DestinationIp  condition="is">Remote</DestinationIp >
+			</Rule>
+
+		</NetworkConnect>
+	</RuleGroup>
+	
+	<!-- Event ID 5 == Process Terminated. -->
+	<RuleGroup name="Info=ProcessTerminated exclude Group" groupRelation="or">
+        <ProcessTerminate onmatch="include"></ProcessTerminate>
+	</RuleGroup>
+	
+	<!-- Event ID 6 == Driver Loaded. -->
+	<!-- Done -->
+	<RuleGroup name="Info=Driver Loaded exclude Group" groupRelation="or">
+        <DriverLoad onmatch="include">
+        </DriverLoad>
+	</RuleGroup>
+	
+	<!-- Event ID 7 == (DLL)Image Loaded. -->
+	<RuleGroup name="Info=Image Loaded exclude Group" groupRelation="or">
+        <ImageLoad  onmatch="include">
+			<Rule name="technique_id=T1053,technique_name=Scheduled Task Creation via Microsoft Office Application" groupRelation="and">
+				<ImageLoaded condition="is">taskschd.dll</ImageLoaded>
+				<Image condition="contains any">excel.exe;winword.exe;powerpnt.exe;outlook.exe</Image>
+        	</Rule>
+
+			<Rule name="technique_id=T1003,technique_name=Suspicious Process Loading Credential Vault DLL" groupRelation="and">
+				<ImageLoaded condition="is">vaultcli.dll</ImageLoaded>
+				<Image condition="excludes">vaultcmd.exe</Image>
+        	</Rule>
+
+			<Rule name="technique_id=T1218.010,technique_name=Suspicious Script Object Execution" groupRelation="and">
+				<ImageLoaded condition="is">scrobj.dll</ImageLoaded>
+				<Image condition="contains any">regsvr32.exe;rundll32.exe;certutil.exe</Image>
+        	</Rule>
+
+			<Rule name="technique_id=T1047,technique_name=WMI Execution via Microsoft Office Application" groupRelation="and">
+				<ImageLoaded condition="contains any">wbemdisp.dll;wbemcomn.dll;wbemprox.dll;wmiutils.dll;wbemsvc.dll;fastprox.dll</ImageLoaded>
+				<Image condition="contains any">excel.exe;winword.exe;powerpnt.exe;outlook.exe</Image>
+        	</Rule>
+
+			<Rule name="technique_id=T1564.002,technique_name=Hide Artifacts" groupRelation="and">
+				<Image condition="contains">:$Recycle.Bin\</Image>
+				<ImageLoaded condition="contains">:$Recycle.Bin\</ImageLoaded>
+			</Rule>
+
+        </ImageLoad >
+	</RuleGroup>
+
+	<!-- Event ID 8 == CreateRemoteThread. -->
+	<!-- Done -->
+	<RuleGroup name="Info=CreateRemoteThread exclude Group" groupRelation="or">
+        <CreateRemoteThread onmatch="include">
+			<Rule name="technique_id=T1055.001,technique_name=Dynamic-link Library Injection" groupRelation="and">
+				<TargetImage condition="image">explorer.exe</TargetImage>
+				<SourceImage condition="excludes any">WerFault.exe;svchost.exe;userinit.exe;rundll32.exe;winlogon.exe</SourceImage>
+			</Rule>
+
+			<Rule name="technique_id=T1055.001,technique_name=Dynamic-link Library Injection" groupRelation="and">
+				<TargetImage condition="image">explorer.exe</TargetImage>
+				<SourceImage condition="contains any">\Users\;\Temp\;\ProgramData\</SourceImage>
+			</Rule>
+
+			<Rule name="technique_id=T1055.001,technique_name=Dynamic-link Library Injection" groupRelation="and">
+				<TargetImage condition="image">wuauclt.exe</TargetImage>
+				<SourceImage condition="excludes any">\System32\mousocoreworker.exe;\system32\svchost.exe</SourceImage>
+			</Rule>
+
+			<Rule name="technique_id=T1055.001,technique_name=Dynamic-link Library Injection" groupRelation="and">
+				<TargetImage condition="image">svchost.exe</TargetImage>
+				<SourceImage condition="excludes any">\System32\services.exe;\System32\WerFault.exe;\System32\wbem\WmiPrvSE.exe;\System32\svchost.exe</SourceImage>
+			</Rule>
+		</CreateRemoteThread>
+	</RuleGroup>
+
+	<!-- Event ID 9 == RawAccessRead -->
+	<RuleGroup name="Info=RawAccessRead exclude Group" groupRelation="or">
+		<RawAccessRead onmatch="include">
+
+		</RawAccessRead>
+	</RuleGroup>
+
+	<!-- Event ID 10 == ProcessAccess-->
+	<RuleGroup name="Info=ProcessAccess exclude Group" groupRelation="or">
+		<ProcessAccess onmatch="include">
+		</ProcessAccess>
+	</RuleGroup>
+
+	<!-- Event ID 11 == FileCreate. -->
+	<RuleGroup name="Info=FileCreate exclude Group" groupRelation="or">
+		<FileCreate onmatch="include">
+
+			<Rule name="technique_id=T1003.001,technique_name=LSASS Memory Dumping" groupRelation="and">
+				<TargetFilename condition="contains all">lsass;.dmp</TargetFilename>
+				<Image condition="excludes">C:\Windows\System32\WerFault.exe</Image>
+			</Rule>
+
+			<Rule name="technique_id=T1564.001,technique_name=Hide Artifacts" groupRelation="and">
+				<TargetFilename condition="contains">:\$Recycle\.Bin\</TargetFilename>
+				<TargetFilename condition="excludes">:\$Recycle\.Bin\S\-1\-5\-</TargetFilename>
+				<TargetFilename condition="contains any">.exe;.dll;.sys;.ps1;.vbs;.vbe;.vba;.js;.wsh;.rar;.zip</TargetFilename>
+			</Rule>
+
+			<Rule name="technique_id=T1218.010,technique_name=Signed Binary Proxy Execution - Regsvr32" groupRelation="and">
+				<TargetFilename condition="contains any">.exe;.dll;.ocx;.com;.ps1;.vbs;.sys;.bat;.scr;.proj</TargetFilename>
+				<Image condition="contains any">winword.exe;excel.exe;powerpnt.exe</Image>
+			</Rule>
+
+			
+		</FileCreate>
+	</RuleGroup>
+
+	<!-- Event ID 12,13,14 == RegObject added/deleted, RegValue Set, RegObject Renamed -->
+	<RuleGroup name="Info=RegObject include Group" groupRelation="or">
+		<RegistryEvent onmatch="include">
+			<TargetObject name="technique_id=T1546.001,technique_name=Change Default File Association" condition="end with">\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\GlobalAssocChangedCounter</TargetObject>
+			
+			<TargetObject name="technique_id=T1547.010,technique_name=Installation of Port Monitor" condition="contains all">ControlSet;\Control\Print\Monitors</TargetObject>
+			
+			<Rule name="technique_id=T1547.005,technique_name=Installation of Security Support Provider" groupRelation="or">
+				<TargetObject condition="contains">\SYSTEM\CurrentControlSet\Control\Lsa\Security Packages</TargetObject>
+				<TargetObject condition="contains">\SYSTEM\\CurrentControlSet\Control\Lsa\OSConfig\Security Packages</TargetObject>
+			</Rule>
+
+			<TargetObject name="technique_id=T1547.003,technique_name=Installation of Time Providers" condition="contains">\System\CurrentControlSet\Services\W32Time\TimeProviders\</TargetObject>
+
+			<TargetObject name="technique_id=T1037,technique_name=Logon Scripts with UserInitMprLogonScript" condition="contains">\Environment\UserInitMprLogonScript</TargetObject>
+			<!-- <TargetObject name="technique_id=T1037,technique_name=Modification of Logon Scripts from Registry" condition="contains">\Environment\UserInitMprLogonScript</TargetObject> -->
+
+			<TargetObject name="technique_id=T1547.002,technique_name=LSA Authentication Package" condition="contains all">ControlSet;\Control\Lsa\Authentication Packages</TargetObject>
+
+			<Rule name="technique_id=T1137,technique_name=Office Application Startup via Template Registry Modification" groupRelation="or">
+				<TargetObject condition="contains all">\Software\\Microsoft\Office\;\Outlook\Today\UserDefinedUrl</TargetObject>
+				<TargetObject condition="contains all">\Software\Microsoft\Office\;\Excel\Options\Open</TargetObject>
+				<TargetObject condition="contains all">\Software\Microsoft\Office\;\PowerPoint\AddIns</TargetObject>
+				<TargetObject condition="contains all">\Software\Microsoft\Office\;\Addins\</TargetObject>
+				<TargetObject condition="contains all">\SOFTWARE\Microsoft\Office\;\Excel\Options</TargetObject>
+				<TargetObject condition="contains all">\Software\Microsoft\VBA\VBE\;\Addins\</TargetObject>
+			</Rule>
+
+			<Rule name="technique_id=T1546.010,technique_name=Event Triggered Execution: AppInit DLLs" groupRelation="and">
+				<TargetObject condition="contains">\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\AppInit_Dlls</TargetObject>
+				<Image condition="excludes">C:\Windows\System32\msiexec.exe</Image>
+			</Rule>
+
+			<Rule name="technique_id=T1546.010,technique_name=Event Triggered Execution: AppInit DLLs" groupRelation="and">
+				<TargetObject condition="contains">\SOFTWARE\Wow6432Node\Microsoft\Windows NT\CurrentVersion\Windows\AppInit_Dlls</TargetObject>
+				<Image condition="excludes">C:\Windows\SysWOW64\msiexec.exe</Image>
+			</Rule>
+
+			<TargetObject name="technique_id=T1546.007,technique_name=Persistence via NetSh Key" condition="contains">\Software\Microsoft\NetSh\</TargetObject>
+
+			<Rule name="technique_id=T1546.002,technique_name=Persistence via Screensaver" groupRelation="and">
+				<TargetObject condition="contains">\Control Panel\Desktop\SCRNSAVE.EXE</TargetObject>
+				<Image condition="excludes">\system32\rundll32.exe</Image>
+			</Rule>
+
+			<Rule name="technique_id=T1556.002,technique_name=Registration of a Password Filter DLL" groupRelation="and">
+				<TargetObject condition="contains">\SYSTEM\CurrentControlSet\Control\Lsa\Notification Packages</TargetObject>
+			</Rule>
+
+			<Rule name="technique_id=T1547.004,technique_name=Registration of Winlogon Helper DLL" groupRelation="or">
+				<TargetObject condition="contains">\Software[Wow6432Node]Microsoft\Windows NT\CurrentVersion\Winlogon\</TargetObject>
+				<TargetObject condition="contains">\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\</TargetObject>
+			</Rule>
+
+			<Rule name="technique_id=T1553.004,technique_name=Root Certificate Install" groupRelation="or">
+				<TargetObject condition="contains all">\Software\Microsoft\SystemCertificates\Root\Certificates\;\Blob</TargetObject>
+				<TargetObject condition="contains all">\Software\Microsoft\SystemCertificates\AuthRoot\Certificates\;\Blob</TargetObject>
+				<TargetObject condition="contains all">\Software\Policies\Microsoft\SystemCertificates\Root\Certificates\;\Blob</TargetObject>
+				<TargetObject condition="contains all">\Software\Policies\Microsoft\SystemCertificates\AuthRoot\Certificates\;\Blob</TargetObject>
+			</Rule>
+
+			<Rule name="technique_id=T1112,technique_name=Suspicious MS Office Registry Modifications" groupRelation="and">
+				<TargetObject condition="contains all">\Software\Microsoft\Office\;\Word\Security\AccessVBOM</TargetObject>
+				<Image condition="excludes">msiexec.exe</Image>
+			</Rule>
+
+			<Rule name="technique_id=T1112,technique_name=Suspicious MS Office Registry Modifications" groupRelation="and">
+				<TargetObject condition="contains all">\Software\Microsoft\Office\;\Word\Security\VBAWarnings</TargetObject>
+				<Image condition="excludes">msiexec.exe</Image>
+			</Rule>
+
+			<Rule name="technique_id=T1053,technique_name=Scheduled Task/Job" groupRelation="and">
+				<TargetObject condition="contains all">\CurrentVersion\Schedule\TaskCache\Tasks\;Actions\</TargetObject>
+			</Rule>
+
+			<Rule name="technique_id=T1548.002,technique_name=Abuse Elevation Control Mechanism - Bypass User Account Control" groupRelation="and">
+				<TargetObject condition="contains">\shell\open\command</TargetObject>
+				<TargetObject condition="contains any">cmd.exe;cmd /c ;powershell ;powershell.exe ;rundll32;regsvr32;mshta;msiexec;verclsid;msbuild</TargetObject>
+			</Rule>
+
+			<!-- <Rule name="technique_id=T1548.002,technique_name=Abuse Elevation Control Mechanism - Bypass User Account Control" groupRelation="and">
+				<Rule groupRelation="or">
+					<Image condition="contains">cmd.exe</Image>
+					<CommandLine condition="contains any">cmd /c </CommandLine>
+					<Image condition="contains">powershell.exe</Image>
+					<CommandLine condition="contains any">powershell </CommandLine>
+					<Image condition="contains">rundll32.exe</Image>
+					<CommandLine condition="contains any">rundll32 </CommandLine>
+					<Image condition="contains">regsvr32.exe</Image>
+					<CommandLine condition="contains any">regsvr32 </CommandLine>
+					<Image condition="contains">mshta.exe</Image>
+					<CommandLine condition="contains any">mshta </CommandLine>
+					<Image condition="contains">msiexec.exe</Image>
+					<CommandLine condition="contains any">msiexec </CommandLine>
+					<Image condition="contains">verclsid.exe</Image>
+					<CommandLine condition="contains any">verclsid </CommandLine>
+				</Rule>
+				<ParentImage condition="contains any">slui.exe;fodhelper.exe;sdclt.exe;wsreset.exe;eventvwr.exe</ParentImage>
+			</Rule> -->
+
+		</RegistryEvent>
+	</RuleGroup>
+
+	<RuleGroup name="Info=RegObject exclude Group" groupRelation="and">
+		<RegistryEvent onmatch="exclude">
+			<Rule name="technique_id=T1546.002,technique_name=Persistence via Screensaver" groupRelation="and">
+				<TargetObject condition="contains">\Control Panel\Desktop\SCRNSAVE.EXE</TargetObject>
+				<Image condition="image">rundll32.exe</Image>
+				<ParentImage condition="image">explorer.exe</ParentImage>
+			</Rule>
+		</RegistryEvent>
+	</RuleGroup>
+
+	<!-- Event ID 15 == FileStream Created -->
+	<RuleGroup name="Info=FileStream exclude Group" groupRelation="or">
+		<FileCreateStreamHash onmatch="include">
+		</FileCreateStreamHash>
+	</RuleGroup>
+
+	<!-- Event ID 17,18 == PipeEvent. Log Named pipe created & Named pipe connected-->
+	<RuleGroup name="Info=PipeEvent exclude Group" groupRelation="or">
+		<PipeEvent onmatch="include">
+		</PipeEvent>
+	</RuleGroup>
+
+	<!-- Event ID 19,20,21, == WmiEvent. Log all WmiEventFilter, WmiEventConsumer, WmiEventConsumerToFilter activity-->
+	<RuleGroup name="Info=WmiEvent exclude Group" groupRelation="or">
+		<WmiEvent onmatch="include">
+		</WmiEvent>
+	</RuleGroup>
+
+	<!-- Event ID 22 == DNS Queries and their results -->
+	<!-- use propose SwiftOnSecurity -->
+	<RuleGroup name="Info=DnsQuery exclude Group" groupRelation="or">
+		<DnsQuery onmatch="include">
+			<Rule name="technique_id=T1071,technique_name=Non-browser processes making DNS requests to Dynamic DNS Providers" groupRelation="and">
+				<QueryName condition="contains any">.ddns.net;.hopto.org;.bounceme.net</QueryName>
+				<Image condition="contains any">chrome.exe;iexplore.exe;firefox.exe;Cococ.exe</Image>
+			</Rule>
+
+			
+			<Rule name="technique_id=T1071.001,technique_name=Web Protocols" groupRelation="and">
+				<Image condition="excludes any">\Dropbox\Client\Dropbox.exe;\Dropbox\Update\DropboxUpdate.exe;chrome.exe;firefox.exe;iexplore.exe;opera.exe;microsoftedgecp.exe;microsoftedge.exe;browser.exe</Image>
+				<QueryName condition="contains any">dropboxapi.com;api.dropbox.com</QueryName>
+			</Rule>
+
+			<Rule name="technique_id=T1218.010,technique_name=Signed Binary Proxy Execution - Regsvr32" groupRelation="and">
+				<Image condition="image">regsvr32.exe</Image>
+			</Rule>
+
+			
+		</DnsQuery>
+	</RuleGroup>
+
+	<!-- Event ID 23 == File Delete and overwrite events which saves a copy to the archivedir-->
+	<!-- Done -->
+	<RuleGroup name="Info=FileDelete include Group" groupRelation="or">
+		<FileDelete onmatch="include">
+		</FileDelete>
+	</RuleGroup>
+
+	<!-- Event ID 24 == Clipboard change events, only captures text, not files -->
+	<RuleGroup groupRelation="or">
+      <ClipboardChange onmatch="include">
+	  </ClipboardChange>
+    </RuleGroup>
+
+	<!-- Event ID 25 == Process tampering events-->
+	<RuleGroup name="Info=ProcessTampering include Group" groupRelation="or">
+		<ProcessTampering onmatch="include">
+		</ProcessTampering>
+	</RuleGroup>
+
+	
+	<!-- Event ID 26 == File Delete and overwrite events, does NOT save the file-->
+	<RuleGroup name="Info=FileDeleteDetected exclude Group" groupRelation="or">
+		<FileDeleteDetected onmatch="include">
+		</FileDeleteDetected>
+	</RuleGroup>
+
+	</EventFiltering>
+</Sysmon>
